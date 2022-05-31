@@ -165,6 +165,10 @@ void OpenGLWindow::initGL()
     glEnableVertexAttribArray(vertexLoc);
 
     glPrintError("Setup complete", true);
+
+    cout << "[W]hite\n[D]Black" << endl;
+    cout << "[R]ed\n[G]reen\n[B]lue" << endl;
+    cout << "[Y]ellow\n[M]agneta\n[C]yan" << endl;
 }
 
 void OpenGLWindow::render()
@@ -189,6 +193,40 @@ bool OpenGLWindow::handleEvent(SDL_Event e)
         if(e.key.keysym.sym == SDLK_ESCAPE)
         {
             return false;
+        }
+
+        //colours
+        shader = loadShaderProgram("simple.vert", "simple.frag");
+        glUseProgram(shader);
+        int colorLoc = glGetUniformLocation(shader, "objectColor");
+        if (e.key.keysym.sym == SDLK_w){
+            glClearColor(0,0,0,1);
+            glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);    //white
+        }
+        if (e.key.keysym.sym == SDLK_d){
+            glUniform3f(colorLoc, 0.0f, 0.0f, 0.0f);    //black
+        }
+        if (e.key.keysym.sym == SDLK_r){
+            glClearColor(0,0,0,1);
+            glUniform3f(colorLoc, 1.0f, 0.0f, 0.0f);    //red
+        }
+        if (e.key.keysym.sym == SDLK_g){
+            glClearColor(0,0,0,1);
+            glUniform3f(colorLoc, 0.0f, 1.0f, 0.0f);    //green
+        }
+        if (e.key.keysym.sym == SDLK_b){
+            glClearColor(0,0,0,1);
+            glUniform3f(colorLoc, 0.0f, 0.0f, 1.0f);    //blue
+        }
+        if (e.key.keysym.sym == SDLK_y){
+            glClearColor(0,0,0,1);
+            glUniform3f(colorLoc, 1.0f, 1.0f, 0.0f);    //yellow
+        }
+        if (e.key.keysym.sym == SDLK_m){
+            glUniform3f(colorLoc, 1.0f, 0.0f, 1.0f);    //magneta
+        }
+        if (e.key.keysym.sym == SDLK_c){
+            glUniform3f(colorLoc, 0.0f, 1.0f, 1.0f);    //cyan
         }
     }
     return true;
