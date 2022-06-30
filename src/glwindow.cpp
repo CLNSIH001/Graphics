@@ -146,7 +146,7 @@ void OpenGLWindow::initGL()
     // Note that this path is relative to your working directory
     // when running the program (IE if you run from within build
     // then you need to place these files in build as well)
-    shader = loadShaderProgram("simple.vert", "simple.frag");
+    shader = loadShaderProgram("build/simple.vert", "build/simple.frag");
     glUseProgram(shader);
 
     int colorLoc = glGetUniformLocation(shader, "objectColor");
@@ -154,8 +154,7 @@ void OpenGLWindow::initGL()
 
     // Load the model that we want to use and buffer the vertex attributes
     //GeometryData geometry = loadOBJFile("tri.obj");
-    GeometryData geometry;
-    geometry.loadFromOBJFile("tri2.obj");
+    geometry.loadFromOBJFile("samples/tri2.obj");
     int vertexLoc = glGetAttribLocation(shader, "position");
     GLfloat* vertices = (float *)geometry.vertexData();
     glGenBuffers(1, &vertexBuffer);
@@ -165,17 +164,43 @@ void OpenGLWindow::initGL()
     glEnableVertexAttribArray(vertexLoc);
 
     glPrintError("Setup complete", true);
+    render();
+    menuUI();
+}
 
-    cout << "[W]hite\n[D]Black" << endl;
-    cout << "[R]ed\n[G]reen\n[B]lue" << endl;
-    cout << "[Y]ellow\n[M]agneta\n[C]yan" << endl;
+void OpenGLWindow::menuUI(){
+    if (mainMenu) {
+        cout << "MAIN MENU: type in terminal\n";
+        cout << "Press \"c\" for colour change\nPress \"t\" for transformation\nPress \"h\" for compound transformation" << endl;
+        menuOption = cin.get();
+    }
+    cout << endl;
+    if (menuOption == 'c' || menuOption == 'C'){
+        cout << "COLOUR: enter in gui\n";
+        cout << "[W]hite\n[D]Black" << endl;
+        cout << "[R]ed\n[G]reen\n[B]lue" << endl;
+        cout << "[Y]ellow\n[M]agneta\n[C]yan" << endl;
+        cout << "Press \"q\" to go back to main menu options\n" << endl;
+        mainMenu = false;
+    }
+    else if (menuOption == 't' || menuOption == 'T'){
+        cout << "TRANSFORM: enter in gui\n";
+        cout << "[S]cale\n[T]ranslate\n[R]otate\n[D]Shear" << endl;
+        cout << "Press \"q\" to go back to main menu options\n" << endl;
+        mainMenu = false;
+    }
+    else if (menuOption == 'h' || menuOption == 'H'){
+        cout << "COMPOUND TRANSFORMATION:\n";
+        cout << "Press \"q\" to go back to main menu options\n" << endl;
+        mainMenu = false;
+    }
 }
 
 void OpenGLWindow::render()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDrawArrays(GL_TRIANGLES, 0, geometry.vertexCount());
 
     // Swap the front and back buffers on the window, effectively putting what we just "drew"
     // onto the screen (whereas previously it only existed in memory)
@@ -188,46 +213,59 @@ bool OpenGLWindow::handleEvent(SDL_Event e)
     // A list of keycode constants is available here: https://wiki.libsdl.org/SDL_Keycode
     // Note that SDL provides both Scancodes (which correspond to physical positions on the keyboard)
     // and Keycodes (which correspond to symbols on the keyboard, and might differ across layouts)
-    if(e.type == SDL_KEYDOWN)
+    if(!mainMenu && e.type == SDL_KEYDOWN)
     {
         if(e.key.keysym.sym == SDLK_ESCAPE)
         {
             return false;
         }
-
+        else if (e.key.keysym.sym == SDLK_q){
+            mainMenu = true;
+            cin.get();
+            menuUI();
+        }
         //colours
-        shader = loadShaderProgram("simple.vert", "simple.frag");
-        glUseProgram(shader);
-        int colorLoc = glGetUniformLocation(shader, "objectColor");
-        if (e.key.keysym.sym == SDLK_w){
-            glClearColor(0,0,0,1);
-            glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);    //white
+        else if (menuOption == 'c' || menuOption == 'C'){
+            shader = loadShaderProgram("build/simple.vert", "build/simple.frag");
+            glUseProgram(shader);
+            int colorLoc = glGetUniformLocation(shader, "objectColor");
+            if (e.key.keysym.sym == SDLK_w){
+                glClearColor(0,0,0,1);
+                glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);    //white
+            }
+            if (e.key.keysym.sym == SDLK_d){
+                glUniform3f(colorLoc, 0.0f, 0.0f, 0.0f);    //black
+            }
+            if (e.key.keysym.sym == SDLK_r){
+                glClearColor(0,0,0,1);
+                glUniform3f(colorLoc, 1.0f, 0.0f, 0.0f);    //red
+            }
+            if (e.key.keysym.sym == SDLK_g){
+                glClearColor(0,0,0,1);
+                glUniform3f(colorLoc, 0.0f, 1.0f, 0.0f);    //green
+            }
+            if (e.key.keysym.sym == SDLK_b){
+                glClearColor(0,0,0,1);
+                glUniform3f(colorLoc, 0.0f, 0.0f, 1.0f);    //blue
+            }
+            if (e.key.keysym.sym == SDLK_y){
+                glClearColor(0,0,0,1);
+                glUniform3f(colorLoc, 1.0f, 1.0f, 0.0f);    //yellow
+            }
+            if (e.key.keysym.sym == SDLK_m){
+                glUniform3f(colorLoc, 1.0f, 0.0f, 1.0f);    //magneta
+            }
+            if (e.key.keysym.sym == SDLK_c){
+                glUniform3f(colorLoc, 0.0f, 1.0f, 1.0f);    //cyan
+            }
         }
-        if (e.key.keysym.sym == SDLK_d){
-            glUniform3f(colorLoc, 0.0f, 0.0f, 0.0f);    //black
+        else if (menuOption == 't' || menuOption == 'T'){
+            if (e.key.keysym.sym == SDLK_s){}
+            if (e.key.keysym.sym == SDLK_t){}
+            if (e.key.keysym.sym == SDLK_r){}
+            if (e.key.keysym.sym == SDLK_d){}
         }
-        if (e.key.keysym.sym == SDLK_r){
-            glClearColor(0,0,0,1);
-            glUniform3f(colorLoc, 1.0f, 0.0f, 0.0f);    //red
-        }
-        if (e.key.keysym.sym == SDLK_g){
-            glClearColor(0,0,0,1);
-            glUniform3f(colorLoc, 0.0f, 1.0f, 0.0f);    //green
-        }
-        if (e.key.keysym.sym == SDLK_b){
-            glClearColor(0,0,0,1);
-            glUniform3f(colorLoc, 0.0f, 0.0f, 1.0f);    //blue
-        }
-        if (e.key.keysym.sym == SDLK_y){
-            glClearColor(0,0,0,1);
-            glUniform3f(colorLoc, 1.0f, 1.0f, 0.0f);    //yellow
-        }
-        if (e.key.keysym.sym == SDLK_m){
-            glUniform3f(colorLoc, 1.0f, 0.0f, 1.0f);    //magneta
-        }
-        if (e.key.keysym.sym == SDLK_c){
-            glUniform3f(colorLoc, 0.0f, 1.0f, 1.0f);    //cyan
-        }
+        else if (menuOption == 'h' || menuOption == 'H'){}
     }
     return true;
 }

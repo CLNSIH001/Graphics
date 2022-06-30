@@ -17,10 +17,13 @@ public:
 
 private:
     SDL_Window* sdlWin;
-
+    GeometryData geometry;
     GLuint vao;
     GLuint shader;
     GLuint vertexBuffer;
+    bool mainMenu = true;
+    char menuOption;
+    void menuUI();
 };
 
 #endif
